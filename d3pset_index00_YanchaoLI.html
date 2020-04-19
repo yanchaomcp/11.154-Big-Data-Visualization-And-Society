@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3 PSET</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.js"></script>
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+		<script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+				<style type="text/css">
+					.barchartsytles{
+							opacity: 0.7;
+							fill: green;
+						}
+
+					.text-styling{
+						 font-size: 14PX;
+						 font-family:"Arial";
+					}
+
+					.titlestyling{
+						font-size: 18px;
+						font-family: "Arial";
+					}
+
+					#tooltip.hidden {
+					 display: none;
+				 }
+
+					#tooltip {
+					 position: absolute;
+					 width: 100px;
+					 height: 65px;
+					 padding: 5px;
+					 background-color: white;
+					 border: solid gray 1px;
+					 z-index:10;
+				 }
+
+				</style>
+		</head>
+		<body>
+			<h1> EX.1</h1>
+			<h2></h2>
+			<div id = "ex1"></div>
+
+			<h1><a href='d3pset2_index_YanchaoLI.html'>EX.2</a></h1>
+			<h2></h2>
+
+
+
+
+			<script type="text/javascript">
+			var width = 1200;
+			var height = 600;
+
+			agriculturedata = [["Brazil", 33.9],["Canada", 6.9],["Costa Rica", 34.5],["Denmark", 62],["Fiji", 23.3],["France", 52.4],["Greenland", .6],["Italy", 43.2],["Mali",33.8],["Netherlands",53.3]];
+
+			var svg = d3.select("div#ex1")
+						.append("svg")
+						.attr("width", width)
+						.attr("height", height);
+			svg.selectAll("rect")
+               .data(agriculturedata)
+               .enter()
+               .append("rect")
+               .attr("y", function(d, i) {
+                       return i*50 + 100;  // change y-coordinates
+                  })
+               .attr("x", 260)            //change x-coordinates to fit labels and title
+               .attr("width", function(d) {
+                       return d[1]*4;    //change width
+                  })
+          	   .attr("height", 40)         //change height
+							 .attr("class","barchartsytles")
+               // .attr("fill", "orange")   //change color in the style part
+
+			// set text style
+			svg.selectAll("g")
+					.data(agriculturedata)
+					.enter()
+					.append("text")
+					.attr("class","text-styling")
+					.attr("text-anchor","end")
+					.attr("x",250)
+					.attr("y",function(d,i){
+							return i*50 + 125;
+					})
+					.text(function(d){
+						return d[0];
+					})
+
+				// add a title
+				svg.append("text")
+					.text("Agricultural Land in Different Countries (in proportion of total land)")
+					.attr("class","titlestyling")
+					.attr("x",100)
+					.attr("y",80)
+			</script>
+
+
+
+
+
+
+	  </body>
+</html>
