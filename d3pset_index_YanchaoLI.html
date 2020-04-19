@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3 PSET</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.js"></script>
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+		<script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+				<style type="text/css">
+					.barchartsytles{
+							opacity: 0.7;
+							fill: green;
+						}
+
+					.text-styling{
+						 font-size: 14PX;
+						 font-family:"Arial";
+					}
+
+					.titlestyling{
+						font-size: 18px;
+						font-family: "Arial";
+					}
+
+				</style>
+		</head>
+		<body>
+			<h1> EX.1</h1>
+			<h2></h2>
+		<div id="main">
+
+		</div>
+
+		<div id = "ex.1">
+		<script type="text/javascript">
+			var width = 1200;
+			var height = 600;
+
+			agriculturedata = [["Brazil", 33.9],["Canada", 6.9],["Costa Rica", 34.5],["Denmark", 62],["Fiji", 23.3],["France", 52.4],["Greenland", .6],["Italy", 43.2],["Mali",33.8],["Netherlands",53.3]];
+
+			var svg = d3.select("div#main")
+						.append("svg")
+						.attr("width", width)
+						.attr("height", height);
+			svg.selectAll("rect")
+               .data(agriculturedata)
+               .enter()
+               .append("rect")
+               .attr("y", function(d, i) {
+                       return i*50 + 100;  // change y-coordinates
+                  })
+               .attr("x", 260)            //change x-coordinates to fit labels and title
+               .attr("width", function(d) {
+                       return d[1]*4;    //change width
+                  })
+          	   .attr("height", 40)         //change height
+							 .attr("class","barchartsytles")
+               // .attr("fill", "orange")   //change color in the style part
+
+			// set text style
+			svg.selectAll("g")
+					.data(agriculturedata)
+					.enter()
+					.append("text")
+					.attr("class","text-styling")
+					.attr("text-anchor","end")
+					.attr("x",250)
+					.attr("y",function(d,i){
+							return i*50 + 125;
+					})
+					.text(function(d){
+						return d[0];
+					})
+
+				// add a title
+				svg.append("text")
+					.text("Agricultural Land in Different Countries (in proportion of total land)")
+					.attr("class","titlestyling")
+					.attr("x",100)
+					.attr("y",80)
+
+		</script>
+		</div>
+
+	 <div id = "ex2">
+		 <h1> EX.2</h1>
+		 <h2></h2>
+
+		 <script>
+		 var bostonurl="https://gist.githubusercontent.com/cesandoval/09b2e39263c748fbcb84b927cecc7c46/raw/ab71d3638efd2545ec99c2651c6f2ddcea9d2a07/boston.json"
+		 var twitterurl ="https://raw.githubusercontent.com/brookefzy/BigData2020/master/pset6/boston_311.csv"
+
+		 var width = 1200;
+		 var height = 1000;
+		 var path = d3.geoPath ()
+		 var svg = d3.select("body")
+		 							.append("svg")
+									.attr("width", width)
+									.attr("height", height);
+
+
+		 var bos_twitter = d3.map();
+
+
+
+		 var promises =[
+			 				d3.json(bostonurl),
+							d3.tsv(twitterurl,function(d){bos_twitter.set(d.id,+d.twitter);})
+		 ]
+
+		  promise.all(promises).then(ready)
+
+			var color = d3.scaleThreshold()
+							.domain(d3,range(2,10))
+							.range(d3.schemeBlues[9]);
+
+			function ready([us]){
+				svg.append("g")
+						.selectAll("path")
+						.data(topojson.feature(us,us.objects.boston_neigh.geometries.properties).features)
+						.enter()
+						.append("path")
+						.attr("fill",function(d){return color(d.twitter = bos_twitter.get(d.id));})
+						.attr("d",path)
+						.append("title");
+			}
+
+			var x = d3.scaleLinear()
+								.domain([1,10])
+								.rangRound([600,860]);
+			 var g=svg.append("g")
+			 					.attr("class","key")
+								.attr("transform","translate(0,50)");
+          g.selectAll("rect")
+							.data(color.range().map(function(d){
+								d = color.invertExtent(d);
+								if(d[0]==null) d[0] = x.domain()[0];
+								if(d[1]==null) d[1] = x.domain()[1];
+								return d；
+							}))
+
+					.enter().append("rect")
+					.attr("height",8)
+					.attr("x",function(d){return x(d[0]);})
+					.attr("width",function(d){return x(d[1])-x(d[0]);});
+
+				g.append("text")
+					.attr("class","caption")
+					.attr("x",x.range()[0])
+					.attr("y",-6)
+					.attr("fill","#000")
+					.attr("text-anchor","start")
+					.attr("font-weight","bold")
+					.text("Twitter in Each Neighborhood of Boston")
+
+				g.call(d3.axisBottom(x)
+			   .tickSize(12)
+			 	 .tickFormat(function(x,i){return i ? x:x+"%";})
+			   .tickValues(color.domain()))
+				 .select(".domain")
+				 .remove();
+
+
+		 // var albersProjection = d3.geoAlbers()
+		 // 		.scale( 190000)
+		 // 		.rotate([71.057, 0])
+		 // 		.center([0, 42.313])
+		 // 		.translate([width/2, height/2])
+		 //
+		 // var geoPath = d3.geoPath()
+			// 	 .projection(albersProjection)
+		 //
+		 // d3.json(bostonurl).then(function(boston){
+			//  		console.log(boston)
+		 //
+			// 		g.selectAll("path")
+			// 					 .data(boston.features)
+			// 					 .enter()
+			// 					 .append("path")
+			// 					 .attr("fill", "#ccc")  //#e6ccff
+			// 					 .attr("stroke", "#333")
+			// 					 .attr("d",geoPath)
+		 //
+			// 	 })
+
+			// d3.json(bostonurl).then(ready)
+			// function ready(us){
+			// 		svg.append("g")
+			// 			 .selectAll("path")
+			// 			. data (topojson.feature(us,us.objects.boston_neigh).features)
+			// 			 .enter()
+			// 			 .append("path")
+			// 			 .style("fill","white")
+			// 			 .style("stroke","black")
+			// 			 .attr("d",path)
+			// 			 .append("title");
+			// }
+
+
+
+
+
+		 </script>
+
+		</div>
+	</body>
+</html>
